@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="search_bar_margin">10dp</dimen>
+    <dimen name="search_bar_height">55dp</dimen>
+    <dimen name="search_bar_corners">5dp</dimen>
+    <dimen name="map_floating_button_size">50dp</dimen>
+    <dimen name="map_floating_button_margin">20dp</dimen>
+</resources>

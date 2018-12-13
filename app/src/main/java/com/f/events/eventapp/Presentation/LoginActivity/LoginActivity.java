@@ -2,7 +2,6 @@ package com.f.events.eventapp.Presentation.LoginActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,9 +10,6 @@ import android.widget.Toast;
 
 import com.f.events.eventapp.Presentation.MapActivity.MapActivity;
 import com.f.events.eventapp.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import butterknife.BindView;
@@ -46,6 +42,18 @@ public class LoginActivity extends AppCompatActivity {
     @OnClick(R.id.btn_login)
     public void login(View v) {
         mAuth.signInWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        MapActivity.start(this);
+                    } else {
+                        Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @OnClick(R.id.btn_create)
+    public void createUser(View v) {
+        mAuth.createUserWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         MapActivity.start(this);
