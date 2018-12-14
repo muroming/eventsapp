@@ -5,4 +5,6 @@
     <dimen name="search_bar_corners">5dp</dimen>
     <dimen name="map_floating_button_size">50dp</dimen>
     <dimen name="map_floating_button_margin">20dp</dimen>
+    <dimen name="nav_icon_size">65dp</dimen>
+
 </resources>
