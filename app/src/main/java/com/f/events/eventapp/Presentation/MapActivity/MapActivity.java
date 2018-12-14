@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -30,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -43,6 +46,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FirebaseAuth mAuth;
     private SearchView mSearchView;
     private Marker mSelectedMarker;
+
+    @BindView(R.id.nv_drawer)
+    NavigationView mNavigationDrawer;
+
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
 
     public static void start(Context context) {
         Intent starter = new Intent(context, MapActivity.class);
@@ -65,6 +74,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mNavigationDrawer.setNavigationItemSelectedListener(menuItem -> {
+
+            switch (menuItem.getItemId()){
+                case R.id.nav_logout: {
+                    mAuth.signOut();
+                    LoginActivity.start(this);
+                    finish();
+                    break;
+                }
+                case R.id.nav_profile: {
+                    menuItem.setChecked(true);
+                    mDrawerLayout.closeDrawers();
+                    break;
+                }
+                case R.id.nav_my_events: {
+                    menuItem.setChecked(true);
+                    mDrawerLayout.closeDrawers();
+                    break;
+                }
+            }
+
+            return true;
+        });
     }
 
     @OnClick(R.id.btn_add_event)
