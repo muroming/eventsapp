@@ -7,4 +7,7 @@
     <string name="my_events">Мои события</string>
     <string name="settings">Настройки</string>
     <string name="logout">Выйти</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

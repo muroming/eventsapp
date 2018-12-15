@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.f.events.eventapp.Presentation.MapActivity.MapActivity;
+import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        MapActivity.start(this);
+                        MainActivity.start(this);
                     } else {
                         Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        MapActivity.start(this);
+                        MainActivity.start(this);
                     } else {
                         Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                     }
