@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
+import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -79,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.nav_my_events: {
                     menuItem.setChecked(true);
                     mDrawerLayout.closeDrawers();
+                    EventsFragment events = new EventsFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fl_fragment_container, events)
+                            .commit();
                     break;
                 }
             }
