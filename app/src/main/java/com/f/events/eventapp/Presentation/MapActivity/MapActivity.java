@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
-import com.f.events.eventapp.Presentation.CreateEventActivity.CreateEventActivity;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -102,7 +101,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @OnClick(R.id.btn_add_event)
     public void onAddEventClicked(View v) {
-        CreateEventActivity.start(this);
+        //CreateEventActivity.start(this);
     }
 
     @Override
