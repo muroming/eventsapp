@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
+import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -75,15 +76,18 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.nav_profile: {
                     menuItem.setChecked(true);
                     mDrawerLayout.closeDrawers();
+                    setTitle("Профиль");
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fl_fragment_container, ProfileFragment.newInstance())
+                            .commit();
                     break;
                 }
                 case R.id.nav_my_events: {
                     menuItem.setChecked(true);
                     mDrawerLayout.closeDrawers();
-                    EventsFragment events = new EventsFragment();
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .replace(R.id.fl_fragment_container, events)
+                            .replace(R.id.fl_fragment_container, EventsFragment.newInstance())
                             .commit();
                     break;
                 }

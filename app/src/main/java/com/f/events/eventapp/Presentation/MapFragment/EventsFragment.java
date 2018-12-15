@@ -21,6 +21,10 @@ public class EventsFragment extends Fragment {
     @BindView(R.id.vp_switch_events)
     ViewPager viewPager;
 
+    public static EventsFragment newInstance() {
+        return new EventsFragment();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
