@@ -16,13 +16,12 @@ public class EventDAO {
     private Uri eventPhoto;
 
     public EventDAO(LatLng position, String name, String description, Date eventTime,
-                    List<Integer> participants, Uri eventPhoto) {
+                    List<Integer> participants) {
         this.position = position;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
         this.participants = participants;
-        this.eventPhoto = eventPhoto;
     }
 
     public EventDAO() {
