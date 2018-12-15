@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -55,6 +56,9 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     @BindView(R.id.tv_event_sheet_place)
     TextView mEventSheetPlace;
 
+    @BindView(R.id.fab_map_floating_button)
+    FloatingActionButton mFloatButton;
+
     public MapFragment() {
         // Required empty public constructor
     }
@@ -82,6 +86,23 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
         ButterKnife.bind(this, v);
         mBottomSheet = BottomSheetBehavior.from(mEventBottomLayout);
         mBottomSheet.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        mBottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+                if (i == BottomSheetBehavior.STATE_EXPANDED || i == BottomSheetBehavior.STATE_COLLAPSED) {
+                    mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_bookmark, null));
+                }
+                if (i == BottomSheetBehavior.STATE_HIDDEN) {
+                    mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add, null));
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+
+            }
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);

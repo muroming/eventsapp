@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include layout="@layout/layout_map" />
 
     <include layout="@layout/bottom_info_layout" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_map_floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/map_floating_button_margin"
+        android:src="@drawable/ic_add"
+        app:layout_anchor="@+id/ll_event_bottom_sheet"
+        app:layout_anchorGravity="top|end" />
 
 </android.support.design.widget.CoordinatorLayout>
