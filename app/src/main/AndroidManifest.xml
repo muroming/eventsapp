@@ -25,7 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".Presentation.LoginActivity.LoginActivity" />
-        <activity android:name=".Presentation.CreateEventFragment.CreateEventActivity"></activity>
     </application>
 
 </manifest>

@@ -2,15 +2,12 @@ package com.f.events.eventapp.Presentation.MapFragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.f.events.eventapp.Presentation.CreateEventActivity.CreateEventActivity;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -45,7 +42,6 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     public MapFragment() {
         // Required empty public constructor
     }
-
     public static MapFragment newInstance() {
         return new MapFragment();
     }
@@ -68,6 +64,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
         View v = inflater.inflate(R.layout.fragment_map, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
+        ButterKnife.bind(this, v);
 
         mapFragment.getMapAsync(this);
 
@@ -144,5 +141,10 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
                 mMap.setMyLocationEnabled(true);
             }
         }
+    }
+
+    @OnClick(R.id.btn_add_event)
+    public void actionBarSetOnClickListener(){
+        ((MainActivity) Objects.requireNonNull(getActivity())).setEventFragment();
     }
 }

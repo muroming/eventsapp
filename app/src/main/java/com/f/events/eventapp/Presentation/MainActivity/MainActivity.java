@@ -8,7 +8,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
+import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragment;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
 import com.f.events.eventapp.R;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.fl_fragment_container ,MapFragment.newInstance())
+                .add(R.id.fl_fragment_container , MapFragment.newInstance())
                 .commit();
 
 
@@ -92,5 +94,9 @@ public class MainActivity extends AppCompatActivity {
         mOnBackListener.onBackPressed();
     }
 
-
+    public void setEventFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_fragment_container, CreateEventFragment.newInstance())
+                .commit();
+    }
 }
