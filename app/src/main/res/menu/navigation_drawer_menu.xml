@@ -10,6 +10,10 @@
             android:icon="@drawable/ic_event"
             android:title="@string/my_events"/>
         <item
+            android:id="@+id/nv_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings" />
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit"
             android:title="@string/logout"/>
