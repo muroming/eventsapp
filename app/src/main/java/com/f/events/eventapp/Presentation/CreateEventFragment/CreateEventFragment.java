@@ -19,11 +19,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.f.events.eventapp.FragmentInteractions;
+import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.auth.internal.FederatedSignInActivity;
 
 import java.util.Calendar;
 import java.util.Objects;
@@ -35,7 +37,7 @@ import butterknife.OnClick;
 import static android.app.Activity.RESULT_OK;
 
 
-public class CreateEventFragment extends Fragment{
+public class CreateEventFragment extends Fragment implements FragmentInteractions.OnBackPressListener {
 
     public static final int PLACE_PICKER_REQUEST = 1;
 
@@ -150,6 +152,15 @@ public class CreateEventFragment extends Fragment{
                 mPlaceSelection.setText(Objects.requireNonNull(place.getAddress()).toString());
             }
         }
+    }
+
+    @OnClick(R.id.btn_create_event)
+    public void createEvent(){
+
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 }
 
