@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,7 +32,7 @@ import java.util.Objects;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MapFragment extends Fragment implements MainActivity.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+public class MapFragment extends Fragment implements FragmentInteractions.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
         GoogleMap.OnInfoWindowClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;

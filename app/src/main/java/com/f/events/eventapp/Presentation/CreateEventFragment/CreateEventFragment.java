@@ -3,8 +3,10 @@ package com.f.events.eventapp.Presentation.CreateEventFragment;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.Placeholder;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -16,15 +18,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.R;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
+
 import java.util.Calendar;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.app.Activity.RESULT_OK;
 
-public class CreateEventFragment extends Fragment {
+
+public class CreateEventFragment extends Fragment{
+
+    public static final int PLACE_PICKER_REQUEST = 1;
 
     public static Fragment newInstance() {
         return new CreateEventFragment();
@@ -42,7 +55,12 @@ public class CreateEventFragment extends Fragment {
     @BindView(R.id.meeting_time)
     TextView tvMeetingTime;
 
-    Calendar dateAndTime=Calendar.getInstance();
+    @BindView(R.id.tv_place_selection)
+    TextView mPlaceSelection;
+
+    Calendar dateAndTime = Calendar.getInstance();
+
+    private Place place;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,13 +79,23 @@ public class CreateEventFragment extends Fragment {
     }
 
     @OnClick(R.id.meeting_date)
-    public void meetingDateSetOnClickListener(){
+    public void meetingDateSetOnClickListener() {
         setDate();
     }
 
     @OnClick(R.id.meeting_time)
-    public void meetingTimeSetOnClickListener(){
+    public void meetingTimeSetOnClickListener() {
         setTime();
+    }
+
+    @OnClick(R.id.tv_place_selection)
+    public void selectPlace() {
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        try {
+            startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -100,23 +128,29 @@ public class CreateEventFragment extends Fragment {
     }
 
     // установка обработчика выбора времени
-    TimePickerDialog.OnTimeSetListener t = new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            dateAndTime.set(Calendar.MINUTE, minute);
-            setInitialDateTime();
-        }
+    TimePickerDialog.OnTimeSetListener t = (view, hourOfDay, minute) -> {
+        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        dateAndTime.set(Calendar.MINUTE, minute);
+        setInitialDateTime();
     };
 
     // установка обработчика выбора даты
-    DatePickerDialog.OnDateSetListener d=new DatePickerDialog.OnDateSetListener() {
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            dateAndTime.set(Calendar.YEAR, year);
-            dateAndTime.set(Calendar.MONTH, monthOfYear);
-            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            setInitialDateTime();
-        }
+    DatePickerDialog.OnDateSetListener d = (view, year, monthOfYear, dayOfMonth) -> {
+        dateAndTime.set(Calendar.YEAR, year);
+        dateAndTime.set(Calendar.MONTH, monthOfYear);
+        dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        setInitialDateTime();
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == PLACE_PICKER_REQUEST){
+            if (resultCode == RESULT_OK) {
+                place = PlacePicker.getPlace(getContext(), data);
+                mPlaceSelection.setText(Objects.requireNonNull(place.getAddress()).toString());
+            }
+        }
+    }
 }
 
 
