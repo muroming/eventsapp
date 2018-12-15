@@ -2,23 +2,22 @@ package com.f.events.eventapp.Presentation.MapFragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.f.events.eventapp.Presentation.CreateEventActivity.CreateEventActivity;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,16 +30,34 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class MapFragment extends Fragment implements MainActivity.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnInfoWindowClickListener {
+public class MapFragment extends Fragment implements MainActivity.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private GoogleMap mMap;
     private Marker mSelectedMarker;
+    private BottomSheetBehavior mBottomSheet;
+
+    @BindView(R.id.ll_event_bottom_sheet)
+    LinearLayout mEventBottomLayout;
+
+    @BindView(R.id.tv_event_sheet_description)
+    TextView mEventSheetDescription;
+
+    @BindView(R.id.tv_event_sheet_time)
+    TextView mEventSheetTime;
+
+    @BindView(R.id.tv_event_sheet_name)
+    TextView mEventSheetName;
+
+    @BindView(R.id.tv_event_sheet_place)
+    TextView mEventSheetPlace;
+
+    @BindView(R.id.fab_map_floating_button)
+    FloatingActionButton mFloatButton;
 
     public MapFragment() {
         // Required empty public constructor
@@ -66,6 +83,27 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map, container, false);
+        ButterKnife.bind(this, v);
+        mBottomSheet = BottomSheetBehavior.from(mEventBottomLayout);
+        mBottomSheet.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        mBottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+                if (i == BottomSheetBehavior.STATE_EXPANDED || i == BottomSheetBehavior.STATE_COLLAPSED) {
+                    mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_bookmark, null));
+                }
+                if (i == BottomSheetBehavior.STATE_HIDDEN) {
+                    mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add, null));
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+
+            }
+        });
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -77,7 +115,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     @Override
     public boolean onMarkerClick(Marker marker) {
         mSelectedMarker = marker;
-        marker.showInfoWindow();
+        showEventSheetInfo();
         return true;
     }
 
@@ -85,7 +123,6 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
-        mMap.setOnInfoWindowClickListener(this);
         mMap.setMinZoomPreference(Math.max(mMap.getMinZoomLevel(), 10)); //City
         mMap.setMaxZoomPreference(20); //Buildings
 
@@ -109,19 +146,20 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     @Override
     public void onBackPressed() {
         if (mSelectedMarker != null) {
-            mSelectedMarker.hideInfoWindow();
             mSelectedMarker = null;
+            hideEventSheetInfo();
         } else {
             getActivity().finish();
         }
     }
 
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(getContext(), "InfoClicked", Toast.LENGTH_SHORT).show();
+    private void showEventSheetInfo() {
+        mBottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-
+    private void hideEventSheetInfo() {
+        mBottomSheet.setState(BottomSheetBehavior.STATE_HIDDEN);
+    }
 
     private void enableLocation() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)

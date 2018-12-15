@@ -13,7 +13,6 @@ public class EventDAO {
     private String description;
     private Date eventTime;
     private List<Integer> participants;
-    private Uri eventPhoto;
 
     public EventDAO(LatLng position, String name, String description, Date eventTime,
                     List<Integer> participants) {
@@ -65,13 +64,5 @@ public class EventDAO {
 
     public void setParticipants(List<Integer> participants) {
         this.participants = participants;
-    }
-
-    public Uri getEventPhoto() {
-        return eventPhoto;
-    }
-
-    public void setEventPhoto(Uri eventPhoto) {
-        this.eventPhoto = eventPhoto;
     }
 }
