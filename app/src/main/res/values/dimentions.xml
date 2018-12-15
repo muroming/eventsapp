@@ -6,5 +6,6 @@
     <dimen name="map_floating_button_size">50dp</dimen>
     <dimen name="map_floating_button_margin">20dp</dimen>
     <dimen name="nav_icon_size">65dp</dimen>
-
+    <dimen name="bottom_sheet_horizontal_padding">16dp</dimen>
+    <dimen name="bottom_sheet_info_margin">16dp</dimen>
 </resources>
