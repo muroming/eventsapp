@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
@@ -60,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.fl_fragment_container ,MapFragment.newInstance())
+                .add(R.id.fl_fragment_container, MapFragment.newInstance())
                 .commit();
+        mNavigationDrawer.getMenu().getItem(0)
+                .setChecked(true);
 
 
         mNavigationDrawer.setNavigationItemSelectedListener(menuItem -> {
@@ -91,6 +94,15 @@ public class MainActivity extends AppCompatActivity {
                             .commit();
                     break;
                 }
+                case R.id.nav_map: {
+                    menuItem.setChecked(true);
+                    mDrawerLayout.closeDrawers();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fl_fragment_container, MapFragment.newInstance())
+                            .commit();
+                    break;
+                }
             }
 
             return true;
@@ -100,5 +112,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         mOnBackListener.onBackPressed();
+    }
+
+    public void backToMap() {
+        mNavigationDrawer.getMenu().getItem(0).setChecked(true);
+        mDrawerLayout.closeDrawers();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fl_fragment_container, MapFragment.newInstance())
+                .commit();
+    }
+
+    public void showEventInfoFragment(EventDAO event) {
+//  todo      getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.fl_fragment_container)
     }
 }

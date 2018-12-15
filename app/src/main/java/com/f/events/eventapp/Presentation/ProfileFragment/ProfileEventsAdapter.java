@@ -20,12 +20,13 @@ import java.util.Locale;
 public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdapter.ViewHolder> {
 
     public interface OnItemClicked{
-        void onClick();
+        void onClick(EventDAO event);
     }
 
     private List<EventDAO> mEvents;
     private WeakReference<Context> mContext;
     private SimpleDateFormat mDateFormat;
+    private OnItemClicked mListener;
 
     public ProfileEventsAdapter(Context mContext) {
         this.mEvents = new ArrayList<>();
@@ -35,6 +36,10 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
 
     public void setEvents(List<EventDAO> events) {
         this.mEvents = events;
+    }
+
+    public void setListener(OnItemClicked mListener) {
+        this.mListener = mListener;
     }
 
     @NonNull
@@ -60,9 +65,11 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
         private TextView mAbout;
         private TextView mPosition;
         private TextView mDate;
+        private View mView;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+            mView = itemView;
             mName = itemView.findViewById(R.id.tv_name);
             mAbout = itemView.findViewById(R.id.tv_about);
             mPosition = itemView.findViewById(R.id.tv_position);
@@ -74,6 +81,7 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
             mAbout.setText(event.getDescription());
             mPosition.setText(event.getPosition().toString());  //todo convert
             mDate.setText(mDateFormat.format(event.getEventTime()));
+            mView.setOnClickListener( v -> mListener.onClick(event));
         }
     }
 }

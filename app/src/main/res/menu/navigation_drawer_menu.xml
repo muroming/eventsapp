@@ -2,13 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/ic_map"
+            android:title="@string/map" />
+        <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_profile"
-            android:title="@string/profile"/>
+            android:title="@string/profile" />
         <item
             android:id="@+id/nav_my_events"
             android:icon="@drawable/ic_event"
-            android:title="@string/my_events"/>
+            android:title="@string/my_events" />
         <item
             android:id="@+id/nv_settings"
             android:icon="@drawable/ic_settings"
@@ -16,6 +20,6 @@
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit"
-            android:title="@string/logout"/>
+            android:title="@string/logout" />
     </group>
 </menu>
