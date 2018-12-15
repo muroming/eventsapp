@@ -92,6 +92,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 case R.id.nav_my_events: {
                     menuItem.setChecked(true);
                     mDrawerLayout.closeDrawers();
+                    EventsFragment events = new EventsFragment();
                     break;
                 }
             }
