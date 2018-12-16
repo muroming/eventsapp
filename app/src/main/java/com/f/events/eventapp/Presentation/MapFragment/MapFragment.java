@@ -11,12 +11,18 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.f.events.eventapp.FragmentInteractions;
@@ -51,6 +57,12 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     private Marker mSelectedMarker;
     private BottomSheetBehavior mBottomSheet;
 
+    @BindView(R.id.spinner)
+    Spinner spinner;
+
+    @BindView(R.id.map_cardview)
+    CardView cardView;
+
     @BindView(R.id.ll_event_bottom_sheet)
     LinearLayout mEventBottomLayout;
 
@@ -69,6 +81,12 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     @BindView(R.id.btn_add_event)
     FloatingActionButton mFloatButton;
 
+    @BindView(R.id.map_burger)
+    ImageView mapBurger;
+
+    @BindView(R.id.map_search)
+    ImageView search;
+
     public MapFragment() {
         // Required empty public constructor
     }
@@ -85,7 +103,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.map_menu, menu);
+         inflater.inflate(R.menu.map_menu, menu);
     }
 
     @Override
@@ -114,11 +132,26 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             }
         });
 
+        mapBurger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)Objects.requireNonNull(getActivity())).getDrawerLayout().openDrawer(GravityCompat.START);
+            }
+        });
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         ButterKnife.bind(this, v);
 
         mapFragment.getMapAsync(this);
+        createSpinner();
 
         return v;
     }
@@ -203,6 +236,29 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                 mMap.setMyLocationEnabled(true);
             }
         }
+    }
+
+    public void createSpinner(){
+
+        ArrayAdapter<?> adapter =
+                ArrayAdapter.createFromResource(getContext(), R.array.category, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int selectedCategory = spinner.getSelectedItemPosition();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
     }
 
     @OnClick(R.id.btn_add_event)
