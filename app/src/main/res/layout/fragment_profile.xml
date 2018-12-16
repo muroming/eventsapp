@@ -12,7 +12,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="20dp"
-        android:background="#F00"
+        android:background="@drawable/ic_profile"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +23,6 @@
         android:layout_height="40dp"
         android:layout_margin="20dp"
         android:layout_marginStart="20dp"
-        android:text="Никита Типун"
         android:textSize="25sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/iv_profile_picture"

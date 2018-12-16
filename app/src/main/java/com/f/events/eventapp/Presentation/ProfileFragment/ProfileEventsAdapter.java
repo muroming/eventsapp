@@ -1,6 +1,8 @@
 package com.f.events.eventapp.Presentation.ProfileFragment;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.R;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,7 +22,7 @@ import java.util.Locale;
 
 public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdapter.ViewHolder> {
 
-    public interface OnItemClicked{
+    public interface OnItemClicked {
         void onClick(EventDAO event);
     }
 
@@ -27,11 +30,13 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
     private WeakReference<Context> mContext;
     private SimpleDateFormat mDateFormat;
     private OnItemClicked mListener;
+    private Geocoder geocoder;
 
     public ProfileEventsAdapter(Context mContext) {
         this.mEvents = new ArrayList<>();
         this.mContext = new WeakReference<>(mContext);
         mDateFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
+        geocoder = new Geocoder(this.mContext.get());
     }
 
     public void setEvents(List<EventDAO> events) {
@@ -40,6 +45,11 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
 
     public void setListener(OnItemClicked mListener) {
         this.mListener = mListener;
+    }
+
+    public void addItem(EventDAO event) {
+        mEvents.add(event);
+        notifyItemInserted(mEvents.size() - 1);
     }
 
     @NonNull
@@ -76,12 +86,19 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
             mDate = itemView.findViewById(R.id.tv_date);
         }
 
-        void bind(EventDAO event){
+        void bind(EventDAO event) {
             mName.setText(event.getName());
             mAbout.setText(event.getDescription());
-            mPosition.setText(event.getPosition().toString());  //todo convert
+            List<Address> tmp = null;
+            try {
+                tmp = geocoder.getFromLocation(event.getPosition().get(0),
+                event.getPosition().get(1), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mPosition.setText(tmp.get(0).getSubLocality());
             mDate.setText(mDateFormat.format(event.getEventTime()));
-            mView.setOnClickListener( v -> mListener.onClick(event));
+            mView.setOnClickListener(v -> mListener.onClick(event));
         }
     }
 }

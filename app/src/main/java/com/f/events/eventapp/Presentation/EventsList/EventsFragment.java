@@ -101,7 +101,7 @@ public class EventsFragment extends Fragment implements FragmentInteractions.OnB
         EventsPagerAdapter(FragmentManager fragmentManager){ super(fragmentManager); }
         @Override
         public Fragment getItem(int i) {
-            return EventsListFragment.newInstance();
+            return EventsListFragment.newInstance(i);
         }
 
         @Override

@@ -31,10 +31,9 @@ public class EventsRecyclerAdapter extends RecyclerView.Adapter<EventItem> {
         eventItem.bindItem(event);
     }
 
-    public void addEvents(@NonNull List<EventDAO> events){
-        this.events.clear();
-        this.events.addAll(events);
-        notifyDataSetChanged();
+    public void addEvent(EventDAO event){
+        this.events.add(event);
+        notifyItemInserted(events.size() - 1);
     }
 
     @Override

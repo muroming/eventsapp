@@ -1,23 +1,24 @@
 package com.f.events.eventapp.Presentation.CreateEventFragment;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.Placeholder;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
@@ -25,9 +26,20 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.firebase.auth.internal.FederatedSignInActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -44,6 +56,9 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
     public static Fragment newInstance() {
         return new CreateEventFragment();
     }
+
+    @BindView(R.id.spinner)
+    Spinner spinner;
 
     @BindView(R.id.et_meeting_name)
     EditText etMeetingName;
@@ -62,11 +77,14 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     Calendar dateAndTime = Calendar.getInstance();
 
-    private Place place;
+    private Place mPlace;
+    private FirebaseDatabase mDatabase;
+    private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = FirebaseDatabase.getInstance();
     }
 
     @Nullable
@@ -76,6 +94,26 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
         View view = inflater.inflate(R.layout.fragment_create_event, container, false);
         ButterKnife.bind(this, view);
         setInitialDateTime();
+
+        ArrayAdapter<?> adapter =
+                ArrayAdapter.createFromResource(getContext(), R.array.category, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int selectedCategory = spinner.getSelectedItemPosition();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
 
         return view;
     }
@@ -146,22 +184,77 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == PLACE_PICKER_REQUEST){
+        if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
-                place = PlacePicker.getPlace(getContext(), data);
-                mPlaceSelection.setText(Objects.requireNonNull(place.getAddress()).toString());
+                mPlace = PlacePicker.getPlace(getContext(), data);
+                mPlaceSelection.setText(Objects.requireNonNull(mPlace.getAddress()).toString());
             }
         }
     }
 
     @OnClick(R.id.btn_create_event)
-    public void createEvent(){ //todo add saving
+    public void createEvent() {
+        Map<String, Object> res = new HashMap<>();
+        List<Double> coords = new ArrayList<>();
+        coords.add(mPlace.getLatLng().latitude);
+        coords.add(mPlace.getLatLng().longitude); //todo add category and checks
+        EventDAO event = new EventDAO(coords, etMeetingName.getText().toString(), etMeetingDescription.getText().toString(),
+                dateAndTime.getTime(), 0, Collections.emptyList(), mPlace.getAddress().toString());
+        String key = mDatabase.getReference("events").push().getKey();
+        String userKey = mUser.getUid();
+        res.put(key, event);
+        mDatabase.getReference("events").updateChildren(res).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                mDatabase.getReference("user_created_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Map<String, Object> upd = new HashMap<>();
+                        List<String> events = (List<String>) dataSnapshot.getValue();
+                        if(events == null)
+                            events = new ArrayList<>();
+                        events.add(key);
+                        upd.put(userKey, events);
+                        mDatabase.getReference("user_created_events").updateChildren(upd);
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.getReference("users_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Map<String, Object> upd = new HashMap<>();
+                        List<String> events = (List<String>) dataSnapshot.getValue();
+                        if(events == null)
+                            events = new ArrayList<>();
+                        events.add(key);
+                        upd.put(userKey, events);
+                        mDatabase.getReference("users_events").updateChildren(upd);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                Map<String, Object> upd = new HashMap<>();
+                upd.put(key, Arrays.asList(new String[]{userKey}));
+                mDatabase.getReference("events_users").updateChildren(upd);
+                onBackPressed();
+            } else {
+                Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
-        ((MainActivity) getActivity()).backToMap();
+        try {
+            ((MainActivity) getActivity()).backToMap();
+        } catch (NullPointerException e) {
+        }
     }
 }
 

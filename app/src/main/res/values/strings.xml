@@ -9,21 +9,15 @@
     <string name="settings">Настройки</string>
     <string name="logout">Выйти</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <string-array name="category">
-        <item>Музеи</item>
+        <item>Всё</item>
         <item>Вечеринки</item>
         <item>Кино</item>
         <item>Игры</item>
-        <item>Курсы</item>
         <item>Путешествия</item>
         <item>Прогулки</item>
         <item>Спорт</item>
         <item>Искусство</item>
         <item>Музыка</item>
-        <item>Дети</item>
-        <item>Прочее</item>
     </string-array>
 </resources>
