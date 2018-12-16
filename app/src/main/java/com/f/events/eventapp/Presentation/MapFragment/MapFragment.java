@@ -75,6 +75,9 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     @BindView(R.id.map_burger)
     ImageView mapBurger;
 
+    @BindView(R.id.map_search)
+    ImageView search;
+
     public MapFragment() {
         // Required empty public constructor
     }
@@ -127,6 +130,13 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
             }
         });
 
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -163,7 +173,6 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
 
             googleMap.addMarker(m);
         }
-
         enableLocation();
     }
 
