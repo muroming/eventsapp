@@ -29,7 +29,6 @@ import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -140,9 +139,20 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         });
 
         search.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("MissingPermission")
             @Override
             public void onClick(View v) {
-
+                mMap.setMyLocationEnabled(true);
+                FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
+                client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()) {
+                            LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+                        }
+                    }
+                });
             }
         });
 
