@@ -18,6 +18,7 @@ import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragmen
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.EventsList.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
+import com.f.events.eventapp.Presentation.ParticipantsFragment.EventParticipantsFragment;
 import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -159,11 +162,11 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public DrawerLayout getDrawerLayout(){
+    public DrawerLayout getDrawerLayout() {
         return findViewById(R.id.drawer_layout);
     }
 
-    public void showCreateEventFragment(){
+    public void showCreateEventFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fl_fragment_container, CreateEventFragment.newInstance())
                 .commit();
@@ -180,5 +183,12 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fl_fragment_container, fragment)
                 .commit();
 
+    }
+
+    public void showParticipants(String key) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_fragment_container, EventParticipantsFragment.newInstance(key))
+                .addToBackStack(null)
+                .commit();
     }
 }

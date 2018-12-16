@@ -32,7 +32,8 @@ import java.util.Objects;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class EventsFragment extends Fragment implements FragmentInteractions.OnBackPressListener {
+public class EventsFragment extends Fragment implements FragmentInteractions.OnBackPressListener
+{
 
     @BindView(R.id.vp_switch_events)
     ViewPager viewPager;

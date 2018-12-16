@@ -19,6 +19,7 @@ public class EventItem extends RecyclerView.ViewHolder {
     TextView about;
     TextView position;
     TextView date;
+    View view;
 
     public static EventItem create(@NonNull ViewGroup parent, Context context){
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
@@ -29,13 +30,14 @@ public class EventItem extends RecyclerView.ViewHolder {
         super(itemView);
         this.context = context;
         findViews(itemView);
+        view = itemView;
     }
 
-    public void bindItem(@NonNull EventDAO event){
+    public void bindItem(@NonNull EventDAO event, EventsRecyclerAdapter.OnClickInterface l){
         name.setText(event.getName());
         about.setText(event.getDescription());
         date.setText(DateUtils.getRelativeDateTimeString(context, event.getEventTime().getTime(), DateUtils.MINUTE_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, DateUtils.FORMAT_SHOW_YEAR));
-
+        view.setOnClickListener( v -> l.clicked(event));
     }
 
     private void findViews(View view){

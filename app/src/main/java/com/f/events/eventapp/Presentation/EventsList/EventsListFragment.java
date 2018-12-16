@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -20,17 +20,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class EventsListFragment extends Fragment {
+public class EventsListFragment extends Fragment implements EventsRecyclerAdapter.OnClickInterface {
 
     private static final String ID = "ID";
 
     private RecyclerView recyclerView;
     private View view;
-    private static List<EventDAO> events;
+    private Map<String, EventDAO> map;
     private EventsRecyclerAdapter adapter;
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -52,6 +52,8 @@ public class EventsListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         mDatabase = FirebaseDatabase.getInstance();
+        map = new HashMap<>();
+        adapter.setListener(this);
         return view;
     }
 
@@ -74,8 +76,11 @@ public class EventsListFragment extends Fragment {
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            EventDAO event = dataSnapshot.getValue(EventDAO.class);
-                                            adapter.addEvent(event);
+                                            if (dataSnapshot.getKey() != "test") {
+                                                EventDAO e = dataSnapshot.getValue(EventDAO.class);
+                                                adapter.addEvent(e);
+                                                map.put(event, e);
+                                            }
                                         }
 
                                         @Override
@@ -105,8 +110,11 @@ public class EventsListFragment extends Fragment {
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            EventDAO event = dataSnapshot.getValue(EventDAO.class);
-                                            adapter.addEvent(event);
+                                            if (dataSnapshot.getKey() != "test") {
+                                                EventDAO e = dataSnapshot.getValue(EventDAO.class);
+                                                adapter.addEvent(e);
+                                                map.put(event, e);
+                                            }
                                         }
 
                                         @Override
@@ -123,6 +131,15 @@ public class EventsListFragment extends Fragment {
 
                 }
             });
+        }
+    }
+
+    @Override
+    public void clicked(EventDAO event) {
+        for (Map.Entry<String, EventDAO> e : map.entrySet()) {
+            if (e.getValue().equals(event)) {
+                ((MainActivity) getActivity()).showParticipants(e.getKey());
+            }
         }
     }
 }
