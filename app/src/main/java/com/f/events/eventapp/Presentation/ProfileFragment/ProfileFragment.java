@@ -81,18 +81,6 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
     }
 
     public void getEvents() {
-        List<EventDAO> events = new ArrayList<>();
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        adapter.setEvents(events);
         adapter.notifyDataSetChanged();
     }
 

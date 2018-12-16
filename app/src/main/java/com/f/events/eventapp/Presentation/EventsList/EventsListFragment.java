@@ -43,10 +43,5 @@ public class EventsListFragment extends Fragment {
 
     public void setEvents(){
         events = new ArrayList<>();
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(),new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
     }
 }

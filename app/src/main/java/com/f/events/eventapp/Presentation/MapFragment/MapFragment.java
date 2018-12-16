@@ -7,10 +7,12 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,11 +21,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -33,9 +35,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -46,10 +58,12 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final String EVENT_KEY = "event";
 
     private GoogleMap mMap;
     private Marker mSelectedMarker;
     private BottomSheetBehavior mBottomSheet;
+    private FirebaseDatabase mDatabase;
 
     @BindView(R.id.ll_event_bottom_sheet)
     LinearLayout mEventBottomLayout;
@@ -137,21 +151,8 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         mMap.setMinZoomPreference(Math.max(mMap.getMinZoomLevel(), 10)); //City
         mMap.setMaxZoomPreference(20); //Buildings
 
-        List<LatLng> places = new ArrayList<>();
-        places.add(new LatLng(55.754724, 37.621380));
-        places.add(new LatLng(55.760133, 37.618697));
-        places.add(new LatLng(55.764753, 37.591313));
-        places.add(new LatLng(55.728466, 37.604155));
-
-        for (LatLng l : places) {
-            MarkerOptions m = new MarkerOptions()
-                    .position(l)
-                    .title("Marker");
-
-            googleMap.addMarker(m);
-        }
-
         enableLocation();
+        setupEventsDB();
     }
 
     @Override
@@ -208,5 +209,43 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     @OnClick(R.id.btn_add_event)
     public void actionBarSetOnClickListener() {
         ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
+    }
+
+    private void setupEventsDB() {
+        mDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference ref = mDatabase.getReference().child("events");
+
+
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (!dataSnapshot.getKey().equals("total")) {
+                    EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                    MarkerOptions options = new MarkerOptions().title(event.getName())
+                            .position(event.getLatLng());
+                    mMap.addMarker(options);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

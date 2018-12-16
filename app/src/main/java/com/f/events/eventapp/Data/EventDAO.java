@@ -1,36 +1,36 @@
 package com.f.events.eventapp.Data;
 
-import android.net.Uri;
-
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Date;
 import java.util.List;
 
 public class EventDAO {
-    private LatLng position;
+    private List<Double> position;
     private String name;
     private String description;
     private Date eventTime;
-    private List<Integer> participants;
+    private int category;
+    private List<String> participants;
 
-    public EventDAO(LatLng position, String name, String description, Date eventTime,
-                    List<Integer> participants) {
+    public EventDAO(List<Double> position, String name, String description, Date eventTime, int category,
+                    List<String> participants) {
         this.position = position;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
+        this.category = category;
         this.participants = participants;
     }
 
     public EventDAO() {
     }
 
-    public LatLng getPosition() {
+    public List<Double> getPosition() {
         return position;
     }
 
-    public void setPosition(LatLng position) {
+    public void setPosition(List<Double> position) {
         this.position = position;
     }
 
@@ -58,11 +58,23 @@ public class EventDAO {
         this.eventTime = eventTime;
     }
 
-    public List<Integer> getParticipants() {
+    public List<String> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<Integer> participants) {
+    public void setParticipants(List<String> participants) {
         this.participants = participants;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
+    public LatLng getLatLng(){
+        return new LatLng(position.get(0), position.get(1));
     }
 }
