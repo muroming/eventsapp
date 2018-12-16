@@ -23,6 +23,8 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -72,6 +75,7 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     private Place mPlace;
     private FirebaseDatabase mDatabase;
+    private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -173,9 +177,47 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
         EventDAO event = new EventDAO(coords, etMeetingName.getText().toString(), etMeetingDescription.getText().toString(),
                 dateAndTime.getTime(), 0, Collections.emptyList(), mPlace.getAddress().toString());
         String key = mDatabase.getReference("events").push().getKey();
+        String userKey = mUser.getUid();
         res.put(key, event);
         mDatabase.getReference("events").updateChildren(res).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                mDatabase.getReference("user_created_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Map<String, Object> upd = new HashMap<>();
+                        List<String> events = (List<String>) dataSnapshot.getValue();
+                        if(events == null)
+                            events = new ArrayList<>();
+                        events.add(key);
+                        upd.put(userKey, events);
+                        mDatabase.getReference("user_created_events").updateChildren(upd);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                mDatabase.getReference("users_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Map<String, Object> upd = new HashMap<>();
+                        List<String> events = (List<String>) dataSnapshot.getValue();
+                        if(events == null)
+                            events = new ArrayList<>();
+                        events.add(key);
+                        upd.put(userKey, events);
+                        mDatabase.getReference("users_events").updateChildren(upd);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                Map<String, Object> upd = new HashMap<>();
+                upd.put(key, Arrays.asList(new String[]{userKey}));
+                mDatabase.getReference("events_users").updateChildren(upd);
                 onBackPressed();
             } else {
                 Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();

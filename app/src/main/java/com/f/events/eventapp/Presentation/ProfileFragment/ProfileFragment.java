@@ -132,6 +132,8 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<String> eventKeys = (List<String>) dataSnapshot.getValue();
+                if(eventKeys == null)
+                    eventKeys = new ArrayList<>();
                 for (String key : eventKeys) {
                     mDatabase.getReference("events").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override

@@ -368,12 +368,14 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                EventDAO event = dataSnapshot.getValue(EventDAO.class);
-                MarkerOptions options = new MarkerOptions().title(event.getName())
-                        .position(event.getLatLng());
-                Marker marker = mMap.addMarker(options);
-                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
-                mKeyDaoMap.put(dataSnapshot.getKey(), event);
+                if(!dataSnapshot.getKey().equals("test")) {
+                    EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                    MarkerOptions options = new MarkerOptions().title(event.getName())
+                            .position(event.getLatLng());
+                    Marker marker = mMap.addMarker(options);
+                    mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+                    mKeyDaoMap.put(dataSnapshot.getKey(), event);
+                }
             }
 
             @Override
