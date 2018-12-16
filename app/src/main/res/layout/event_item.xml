@@ -12,8 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:textSize="@dimen/default_text_size"
-        android:layout_margin="@dimen/default_margin"/>
+        android:textSize="25dp"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/tv_about"
@@ -22,7 +24,8 @@
         android:maxLines="3"
         android:textColor="@color/white"
         android:textSize="@dimen/default_text_size"
-        android:layout_margin="@dimen/default_margin"/>
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/tv_position"
@@ -37,7 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:textSize="@dimen/default_text_size"
+        android:textSize="16dp"
+        android:layout_marginTop="16dp"
         android:layout_margin="@dimen/default_margin"/>
 
 </LinearLayout>
