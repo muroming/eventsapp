@@ -8,9 +8,14 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.f.events.eventapp.Data.UserDAO;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,6 +24,7 @@ import butterknife.OnClick;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private FirebaseDatabase mDatabase;
 
     @BindView(R.id.tv_login)
     TextView mLogin;
@@ -56,6 +62,12 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        String key = task.getResult().getUser().getUid();
+                        Map<String, Object> upd = new HashMap<>();
+                        UserDAO user = new UserDAO(null, mLogin.getText().toString());
+                        upd.put(key, user);
+
+                        mDatabase.getReference("users").updateChildren(upd);
                         MainActivity.start(this);
                     } else {
                         Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
