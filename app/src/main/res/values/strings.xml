@@ -11,4 +11,19 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="category">
+        <item>вечеринки</item>
+        <item>кино</item>
+        <item>музеи</item>
+        <item>игры</item>
+        <item>курсы</item>
+        <item>путешествия</item>
+        <item>прогулки</item>
+        <item>спорт</item>
+        <item>искусство</item>
+        <item>музыка</item>
+        <item>дети</item>
+        <item>прочее</item>
+    </string-array>
 </resources>

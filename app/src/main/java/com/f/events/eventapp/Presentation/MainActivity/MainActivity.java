@@ -17,9 +17,9 @@ import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fl_fragment_container, MapFragment.newInstance())
                 .commit();
+
         mNavigationDrawer.getMenu().getItem(0)
                 .setChecked(true);
 
@@ -121,6 +122,10 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.fl_fragment_container, MapFragment.newInstance())
                 .commit();
+    }
+
+    public DrawerLayout getDrawerLayout(){
+        return findViewById(R.id.drawer_layout);
     }
 
     public void showEventInfoFragment(EventDAO event) {
