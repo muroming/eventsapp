@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="20dp"
+    android:orientation="vertical"
     android:background="@drawable/gradient">
-
 
     <ImageView
         android:id="@+id/iv_profile_picture"
@@ -14,60 +14,50 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/ic_profile"
         android:scaleType="centerCrop"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center" />
 
-    <TextView
-        android:id="@+id/tv_profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_margin="20dp"
-        android:layout_marginStart="20dp"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/iv_profile_picture"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_upcoming"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="Ближайшие события"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_profile_picture" />
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
 
-    <EditText
-        android:id="@+id/et_profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="11dp"
-        android:inputType="text"
-        android:maxLines="1"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:visibility="invisible"
-        app:layout_constraintStart_toEndOf="@id/iv_profile_picture"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/tv_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_picture"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_profile_edit_name"
-        android:layout_width="20dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_edit"
-        app:layout_constraintBottom_toBottomOf="@id/tv_profile_name"
-        app:layout_constraintStart_toEndOf="@id/tv_profile_name" />
+
+        <EditText
+            android:id="@+id/et_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:visibility="invisible"
+            tools:ignore="MissingConstraints" />
+
+
+        <ImageView
+            android:id="@+id/iv_profile_edit_name"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_edit" />
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_profile_events"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_upcoming" />
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
