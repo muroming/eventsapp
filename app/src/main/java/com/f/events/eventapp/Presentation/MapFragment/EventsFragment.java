@@ -11,7 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,6 +24,7 @@ public class EventsFragment extends Fragment {
 
     @BindView(R.id.vp_switch_events)
     ViewPager viewPager;
+    List<EventDAO> events;
 
     public static EventsFragment newInstance() {
         return new EventsFragment();
@@ -31,6 +36,7 @@ public class EventsFragment extends Fragment {
         View view = inflater.inflate(R.layout.events_fragment, container, false);
         ButterKnife.bind(this, view);
         viewPager.setAdapter(new EventsPagerAdapter(getFragmentManager()));
+        events = new ArrayList<>();
         return view;
     }
 
@@ -39,7 +45,7 @@ public class EventsFragment extends Fragment {
         public EventsPagerAdapter(FragmentManager fragmentManager){ super(fragmentManager); }
         @Override
         public Fragment getItem(int i) {
-            return new EventsListFragment();
+            return EventsListFragment.newInstance(events);
         }
 
         @Override
