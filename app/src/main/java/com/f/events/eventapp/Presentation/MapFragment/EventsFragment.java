@@ -6,6 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerTabStrip;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +28,8 @@ public class EventsFragment extends Fragment {
     @BindView(R.id.vp_switch_events)
     ViewPager viewPager;
     List<EventDAO> events;
+    @BindView(R.id.pts_switch_events)
+    PagerTabStrip pagerTab;
 
     public static EventsFragment newInstance() {
         return new EventsFragment();
@@ -35,12 +40,15 @@ public class EventsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.events_fragment, container, false);
         ButterKnife.bind(this, view);
-        viewPager.setAdapter(new EventsPagerAdapter(getFragmentManager()));
+        EventsPagerAdapter pagerAdapter = new EventsPagerAdapter(getFragmentManager());
+        viewPager.setAdapter(pagerAdapter);
+        pagerAdapter.notifyDataSetChanged();
         events = new ArrayList<>();
+        pagerTab.setTabIndicatorColor(getResources().getColor(R.color.white));
         return view;
     }
 
-    public class EventsPagerAdapter extends FragmentPagerAdapter{
+    public class EventsPagerAdapter extends FragmentStatePagerAdapter {
 
         public EventsPagerAdapter(FragmentManager fragmentManager){ super(fragmentManager); }
         @Override
@@ -51,6 +59,16 @@ public class EventsFragment extends Fragment {
         @Override
         public int getCount() {
             return 2;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0){
+                return "My Events";
+            }else{
+                return "All Events";
+            }
         }
     }
 }

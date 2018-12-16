@@ -2,17 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="16dp">
 
     <ImageView
         android:id="@+id/nav_profile_icon"
         android:layout_width="@dimen/nav_icon_size"
-        android:layout_height="@dimen/nav_icon_size" />
+        android:layout_height="@dimen/nav_icon_size"
+        android:src="@drawable/non_white"/>
 
     <TextView
         android:id="@+id/nav_profile_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Kek"/>
 
 </LinearLayout>

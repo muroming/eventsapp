@@ -23,6 +23,7 @@ public class EventsListFragment extends Fragment {
     private static RecyclerView recyclerView;
     private static View view;
     private static List<EventDAO> events;
+    private EventsRecyclerAdapter adapter;
 
     public static EventsListFragment newInstance(List<EventDAO> newEvents){
         events = newEvents;
@@ -34,12 +35,17 @@ public class EventsListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.events_list_fragment, container, false);
         recyclerView = view.findViewById(R.id.rv_events_list);
-        EventsRecyclerAdapter adapter = new EventsRecyclerAdapter(getActivity());
-        setEvents();
-        adapter.addEvents(events);
+        adapter = new EventsRecyclerAdapter(getActivity());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setEvents();
+        adapter.addEvents(events);
     }
 
     public void setEvents(){
