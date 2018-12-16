@@ -80,6 +80,7 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
     private Place mPlace;
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+    private int category;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,7 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int selectedCategory = spinner.getSelectedItemPosition();
+                category = position;
             }
 
             @Override
@@ -199,7 +200,7 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
         coords.add(mPlace.getLatLng().latitude);
         coords.add(mPlace.getLatLng().longitude); //todo add category and checks
         EventDAO event = new EventDAO(coords, etMeetingName.getText().toString(), etMeetingDescription.getText().toString(),
-                dateAndTime.getTime(), 0, Collections.emptyList(), mPlace.getAddress().toString());
+                dateAndTime.getTime(), category, Collections.emptyList(), mPlace.getAddress().toString());
         String key = mDatabase.getReference("events").push().getKey();
         String userKey = mUser.getUid();
         res.put(key, event);
