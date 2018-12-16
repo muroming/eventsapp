@@ -2,6 +2,7 @@ package com.f.events.eventapp.Presentation.ProfileFragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,11 +18,16 @@ import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +45,8 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
     TextView mNameTextView;
 
     private ProfileEventsAdapter adapter;
+    private FirebaseDatabase mDatabase;
+    private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
 
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
@@ -61,6 +69,7 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
         ButterKnife.bind(this, v);
         adapter = new ProfileEventsAdapter(getContext());
         adapter.setListener(this);
+        mDatabase = FirebaseDatabase.getInstance();
 
         mRecyclerEvents.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerEvents.setAdapter(adapter);
@@ -81,19 +90,32 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
     }
 
     public void getEvents() {
-        List<EventDAO> events = new ArrayList<>();
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
-        adapter.setEvents(events);
-        adapter.notifyDataSetChanged();
+        String key = mUser.getUid();
+
+        mDatabase.getReference("users_events").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> eventKeys = (List<String>) dataSnapshot.getValue();
+                for (String key : eventKeys) {
+                    mDatabase.getReference("events").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            adapter.addItem(dataSnapshot.getValue(EventDAO.class));
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @OnClick(R.id.iv_profile_edit_name)

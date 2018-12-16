@@ -3,10 +3,10 @@ package com.f.events.eventapp.Presentation.MapFragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -24,7 +24,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
@@ -36,12 +38,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,10 +64,17 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final String ADD_EVENT = "ADD_EVENT";
+    private static final String ATTEND_EVENT = "ATTEND_EVENT";
 
     private GoogleMap mMap;
+    private EventDAO mSelectedEventDao;
     private Marker mSelectedMarker;
     private BottomSheetBehavior mBottomSheet;
+    private FirebaseDatabase mDatabase;
+    private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+    private Map<String, Marker> mKeyMarkerMap;
+    private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
 
     @BindView(R.id.spinner)
     Spinner spinner;
@@ -98,6 +118,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mKeyMarkerMap = new HashMap<>();
     }
 
     @Override
@@ -119,9 +140,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             public void onStateChanged(@NonNull View view, int i) {
                 if (i == BottomSheetBehavior.STATE_EXPANDED || i == BottomSheetBehavior.STATE_COLLAPSED) {
                     mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_bookmark, null));
+                    mFloatButton.setTag(ATTEND_EVENT);
                 }
                 if (i == BottomSheetBehavior.STATE_HIDDEN) {
                     mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add, null));
+                    mFloatButton.setTag(ADD_EVENT);
                 }
             }
 
@@ -130,6 +153,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
             }
         });
+        mFloatButton.setTag(ADD_EVENT);
 
         mapBurger.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,8 +192,23 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        mSelectedMarker = marker;
-        showEventSheetInfo();
+        for (Map.Entry<String, Marker> m : mKeyMarkerMap.entrySet()) {
+            if (m.getValue().equals(marker)) {
+                mSelectedMarker = marker;
+                mDatabase.getReference("events").child(m.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mSelectedEventDao = dataSnapshot.getValue(EventDAO.class);
+                        showEventSheetInfo();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
         return true;
     }
 
@@ -180,26 +219,14 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         mMap.setMinZoomPreference(Math.max(mMap.getMinZoomLevel(), 10)); //City
         mMap.setMaxZoomPreference(20); //Buildings
 
-        List<LatLng> places = new ArrayList<>();
-        places.add(new LatLng(55.754724, 37.621380));
-        places.add(new LatLng(55.760133, 37.618697));
-        places.add(new LatLng(55.764753, 37.591313));
-        places.add(new LatLng(55.728466, 37.604155));
-
-        for (LatLng l : places) {
-            MarkerOptions m = new MarkerOptions()
-                    .position(l)
-                    .title("Marker");
-
-            googleMap.addMarker(m);
-        }
-
         enableLocation();
+        setupEventsDB();
     }
 
     @Override
     public void onBackPressed() {
-        if (mSelectedMarker != null) {
+        if (mSelectedEventDao != null) {
+            mSelectedEventDao = null;
             mSelectedMarker = null;
             hideEventSheetInfo();
         } else {
@@ -208,6 +235,10 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     }
 
     private void showEventSheetInfo() {
+        mEventSheetName.setText(mSelectedEventDao.getName());
+        mEventSheetTime.setText(mFormat.format(mSelectedEventDao.getEventTime()));
+        mEventSheetDescription.setText(mSelectedEventDao.getDescription());
+        mEventSheetPlace.setText(mSelectedEventDao.getPlaceName());
         mBottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
@@ -224,13 +255,10 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         } else {
             mMap.setMyLocationEnabled(true);
             FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
-            client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                @Override
-                public void onComplete(@NonNull Task<Location> task) {
-                    if (task.isSuccessful()) {
-                        LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
-                    }
+            client.getLastLocation().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
                 }
             });
         }
@@ -273,6 +301,99 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @OnClick(R.id.btn_add_event)
     public void actionBarSetOnClickListener() {
-        ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
+        if (mFloatButton.getTag().equals(ADD_EVENT)) {
+            ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
+        } else {
+            attendEvent();
+        }
+    }
+
+    private void attendEvent() {
+        String userKey = mUser.getUid();
+        for (Map.Entry<String, Marker> m : mKeyMarkerMap.entrySet()) {
+            if (m.getValue().equals(mSelectedMarker)) {
+                mDatabase.getReference("events_users").child(m.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> attendingUsers = (ArrayList<String>) dataSnapshot.getValue();
+                        if(attendingUsers == null){
+                            attendingUsers = new ArrayList<>();
+                        }
+                        attendingUsers.add(userKey);
+                        attendingUsers = new ArrayList(new HashSet(attendingUsers));
+                        Map<String, Object> res = new HashMap<>();
+                        res.put(m.getKey(), attendingUsers);
+                        mDatabase.getReference("events_users").updateChildren(res);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+                mDatabase.getReference("users_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> eventsAttended = (ArrayList<String>) dataSnapshot.getValue();
+                        if(eventsAttended == null){
+                            eventsAttended = new ArrayList<>();
+                        }
+                        eventsAttended.add(m.getKey());
+                        eventsAttended = new ArrayList(new HashSet(eventsAttended));
+                        Map<String, Object> res = new HashMap<>();
+                        res.put(userKey, eventsAttended);
+                        mDatabase.getReference("users_events").updateChildren(res);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
+    }
+
+    private void setupEventsDB() {
+        mDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference ref = mDatabase.getReference().child("events");
+
+
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                MarkerOptions options = new MarkerOptions().title(event.getName())
+                        .position(event.getLatLng());
+                Marker marker = mMap.addMarker(options);
+                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
+                EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                MarkerOptions options = new MarkerOptions().title(event.getName())
+                        .position(event.getLatLng());
+                Marker marker = mMap.addMarker(options);
+                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

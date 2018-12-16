@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdapter.ViewHolder> {
 
-    public interface OnItemClicked{
+    public interface OnItemClicked {
         void onClick(EventDAO event);
     }
 
@@ -40,6 +40,11 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
 
     public void setListener(OnItemClicked mListener) {
         this.mListener = mListener;
+    }
+
+    public void addItem(EventDAO event) {
+        mEvents.add(event);
+        notifyItemInserted(mEvents.size() - 1);
     }
 
     @NonNull
@@ -76,12 +81,12 @@ public class ProfileEventsAdapter extends RecyclerView.Adapter<ProfileEventsAdap
             mDate = itemView.findViewById(R.id.tv_date);
         }
 
-        void bind(EventDAO event){
+        void bind(EventDAO event) {
             mName.setText(event.getName());
             mAbout.setText(event.getDescription());
             mPosition.setText(event.getPosition().toString());  //todo convert
             mDate.setText(mDateFormat.format(event.getEventTime()));
-            mView.setOnClickListener( v -> mListener.onClick(event));
+            mView.setOnClickListener(v -> mListener.onClick(event));
         }
     }
 }
