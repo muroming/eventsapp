@@ -3,7 +3,6 @@ package com.f.events.eventapp.Presentation.MapFragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,8 +31,6 @@ import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,8 +38,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,13 +49,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -68,12 +64,15 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final String EVENT_KEY = "event";
+    private static final String ADD_EVENT = "ADD_EVENT";
+    private static final String ATTEND_EVENT = "ATTEND_EVENT";
 
     private GoogleMap mMap;
-    private EventDAO mSelectedMarker;
+    private EventDAO mSelectedEventDao;
+    private Marker mSelectedMarker;
     private BottomSheetBehavior mBottomSheet;
     private FirebaseDatabase mDatabase;
+    private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
     private Map<String, Marker> mKeyMarkerMap;
     private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
 
@@ -141,9 +140,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             public void onStateChanged(@NonNull View view, int i) {
                 if (i == BottomSheetBehavior.STATE_EXPANDED || i == BottomSheetBehavior.STATE_COLLAPSED) {
                     mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_bookmark, null));
+                    mFloatButton.setTag(ATTEND_EVENT);
                 }
                 if (i == BottomSheetBehavior.STATE_HIDDEN) {
                     mFloatButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add, null));
+                    mFloatButton.setTag(ADD_EVENT);
                 }
             }
 
@@ -152,6 +153,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
             }
         });
+        mFloatButton.setTag(ADD_EVENT);
 
         mapBurger.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,10 +183,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     public boolean onMarkerClick(Marker marker) {
         for (Map.Entry<String, Marker> m : mKeyMarkerMap.entrySet()) {
             if (m.getValue().equals(marker)) {
+                mSelectedMarker = marker;
                 mDatabase.getReference("events").child(m.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        mSelectedMarker = dataSnapshot.getValue(EventDAO.class);
+                        mSelectedEventDao = dataSnapshot.getValue(EventDAO.class);
                         showEventSheetInfo();
                     }
 
@@ -211,7 +214,8 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @Override
     public void onBackPressed() {
-        if (mSelectedMarker != null) {
+        if (mSelectedEventDao != null) {
+            mSelectedEventDao = null;
             mSelectedMarker = null;
             hideEventSheetInfo();
         } else {
@@ -220,10 +224,10 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     }
 
     private void showEventSheetInfo() {
-        mEventSheetName.setText(mSelectedMarker.getName());
-        mEventSheetTime.setText(mFormat.format(mSelectedMarker.getEventTime()));
-        mEventSheetDescription.setText(mSelectedMarker.getDescription());
-        mEventSheetPlace.setText(mSelectedMarker.getPlaceName());
+        mEventSheetName.setText(mSelectedEventDao.getName());
+        mEventSheetTime.setText(mFormat.format(mSelectedEventDao.getEventTime()));
+        mEventSheetDescription.setText(mSelectedEventDao.getDescription());
+        mEventSheetPlace.setText(mSelectedEventDao.getPlaceName());
         mBottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
@@ -240,13 +244,10 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         } else {
             mMap.setMyLocationEnabled(true);
             FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
-            client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                @Override
-                public void onComplete(@NonNull Task<Location> task) {
-                    if (task.isSuccessful()) {
-                        LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
-                    }
+            client.getLastLocation().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
                 }
             });
         }
@@ -289,7 +290,58 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @OnClick(R.id.btn_add_event)
     public void actionBarSetOnClickListener() {
-        ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
+        if (mFloatButton.getTag().equals(ADD_EVENT)) {
+            ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
+        } else {
+            attendEvent();
+        }
+    }
+
+    private void attendEvent() {
+        String userKey = mUser.getUid();
+        for (Map.Entry<String, Marker> m : mKeyMarkerMap.entrySet()) {
+            if (m.getValue().equals(mSelectedMarker)) {
+                mDatabase.getReference("events_users").child(m.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> attendingUsers = (ArrayList<String>) dataSnapshot.getValue();
+                        if(attendingUsers == null){
+                            attendingUsers = new ArrayList<>();
+                        }
+                        attendingUsers.add(userKey);
+                        attendingUsers = new ArrayList(new HashSet(attendingUsers));
+                        Map<String, Object> res = new HashMap<>();
+                        res.put(m.getKey(), attendingUsers);
+                        mDatabase.getReference("events_users").updateChildren(res);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+                mDatabase.getReference("users_events").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        ArrayList<String> eventsAttended = (ArrayList<String>) dataSnapshot.getValue();
+                        if(eventsAttended == null){
+                            eventsAttended = new ArrayList<>();
+                        }
+                        eventsAttended.add(m.getKey());
+                        eventsAttended = new ArrayList(new HashSet(eventsAttended));
+                        Map<String, Object> res = new HashMap<>();
+                        res.put(userKey, eventsAttended);
+                        mDatabase.getReference("users_events").updateChildren(res);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
     }
 
     private void setupEventsDB() {
