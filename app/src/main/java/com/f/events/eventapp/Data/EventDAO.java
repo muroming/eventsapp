@@ -12,15 +12,17 @@ public class EventDAO {
     private Date eventTime;
     private int category;
     private List<String> participants;
+    private String placeName;
 
     public EventDAO(List<Double> position, String name, String description, Date eventTime, int category,
-                    List<String> participants) {
+                    List<String> participants, String placeName) {
         this.position = position;
         this.name = name;
         this.description = description;
         this.eventTime = eventTime;
         this.category = category;
         this.participants = participants;
+        this.placeName = placeName;
     }
 
     public EventDAO() {
@@ -76,5 +78,13 @@ public class EventDAO {
 
     public LatLng getLatLng(){
         return new LatLng(position.get(0), position.get(1));
+    }
+
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
     }
 }

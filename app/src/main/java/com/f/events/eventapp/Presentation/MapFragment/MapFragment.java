@@ -12,7 +12,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,12 +19,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -42,11 +44,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,9 +65,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     private static final String EVENT_KEY = "event";
 
     private GoogleMap mMap;
-    private Marker mSelectedMarker;
+    private EventDAO mSelectedMarker;
     private BottomSheetBehavior mBottomSheet;
     private FirebaseDatabase mDatabase;
+    private Map<String, Marker> mKeyMarkerMap;
+    private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm",Locale.getDefault());
 
     @BindView(R.id.ll_event_bottom_sheet)
     LinearLayout mEventBottomLayout;
@@ -95,6 +101,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mKeyMarkerMap = new HashMap<>();
     }
 
     @Override
@@ -139,8 +146,22 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        mSelectedMarker = marker;
-        showEventSheetInfo();
+        for (Map.Entry<String, Marker> m : mKeyMarkerMap.entrySet()) {
+            if (m.getValue().equals(marker)) {
+                mDatabase.getReference("events").child(m.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mSelectedMarker = dataSnapshot.getValue(EventDAO.class);
+                        showEventSheetInfo();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
         return true;
     }
 
@@ -166,6 +187,10 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     }
 
     private void showEventSheetInfo() {
+        mEventSheetName.setText(mSelectedMarker.getName());
+        mEventSheetTime.setText(mFormat.format(mSelectedMarker.getEventTime()));
+        mEventSheetDescription.setText(mSelectedMarker.getDescription());
+        mEventSheetPlace.setText(mSelectedMarker.getPlaceName());
         mBottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
@@ -223,18 +248,24 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                     EventDAO event = dataSnapshot.getValue(EventDAO.class);
                     MarkerOptions options = new MarkerOptions().title(event.getName())
                             .position(event.getLatLng());
-                    mMap.addMarker(options);
+                    Marker marker = mMap.addMarker(options);
+                    mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
                 }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
+                EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                MarkerOptions options = new MarkerOptions().title(event.getName())
+                        .position(event.getLatLng());
+                Marker marker = mMap.addMarker(options);
+                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
             }
 
             @Override
@@ -244,7 +275,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
             }
         });
     }
