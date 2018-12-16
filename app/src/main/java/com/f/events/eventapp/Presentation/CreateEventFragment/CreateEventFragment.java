@@ -169,7 +169,7 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
         Map<String, Object> res = new HashMap<>();
         List<Double> coords = new ArrayList<>();
         coords.add(mPlace.getLatLng().latitude);
-        coords.add(mPlace.getLatLng().longitude); //todo add category
+        coords.add(mPlace.getLatLng().longitude); //todo add category and checks
         EventDAO event = new EventDAO(coords, etMeetingName.getText().toString(), etMeetingDescription.getText().toString(),
                 dateAndTime.getTime(), 0, Collections.emptyList(), mPlace.getAddress().toString());
         String key = mDatabase.getReference("events").push().getKey();
