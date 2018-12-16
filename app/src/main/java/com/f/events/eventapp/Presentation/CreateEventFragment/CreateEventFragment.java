@@ -155,12 +155,13 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
     }
 
     @OnClick(R.id.btn_create_event)
-    public void createEvent(){
+    public void createEvent(){ //todo add saving
 
     }
 
     @Override
     public void onBackPressed() {
+        ((MainActivity) getActivity()).backToMap();
     }
 }
 
