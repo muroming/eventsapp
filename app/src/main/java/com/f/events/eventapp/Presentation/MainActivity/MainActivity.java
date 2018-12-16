@@ -126,15 +126,22 @@ public class MainActivity extends AppCompatActivity {
         return findViewById(R.id.drawer_layout);
     }
 
-    public void showEventInfoFragment(EventDAO event) {
-//  todo      getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.fl_fragment_container)
-    }
-
     public void showCreateEventFragment(){
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fl_fragment_container, CreateEventFragment.newInstance())
                 .commit();
+    }
+
+    public void goToEvent(EventDAO event) {
+        MapFragment fragment = MapFragment.newInstance();
+        fragment.goToEvent(event.getLatLng());
+
+        mNavigationDrawer.getMenu().getItem(0).setChecked(true);
+        mDrawerLayout.closeDrawers();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fl_fragment_container, fragment)
+                .commit();
+
     }
 }

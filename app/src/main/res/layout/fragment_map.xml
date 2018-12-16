@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -30,18 +29,16 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/bububububurger" />
 
             <Spinner
-                android:id="@+id/spinner"
+                android:id="@+id/category_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="50dp"
+                android:layout_marginStart="50dp"
                 android:entries="@array/category"
-                android:visibility="visible">
-
-            </Spinner>
+                android:visibility="visible" />
 
             <ImageView
                 android:id="@+id/map_search"
@@ -49,9 +46,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
-                android:layout_marginRight="8dp"
-                android:src="@drawable/position1"
-                android:contentDescription="TODO" />
+                android:layout_marginEnd="8dp"
+                android:contentDescription="TODO"
+                android:src="@drawable/position1" />
 
         </LinearLayout>
     </android.support.v7.widget.CardView>

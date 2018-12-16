@@ -52,18 +52,24 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+<<<<<<<HEAD
+        =======
+import java.util.function.BiConsumer;
+>>>>>>>6b82cf547b0fddde41e0b5f3276c8b40da5c83f4
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MapFragment extends Fragment implements FragmentInteractions.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
-
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final String ADD_EVENT = "ADD_EVENT";
@@ -76,9 +82,12 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
     private Map<String, Marker> mKeyMarkerMap;
+    private Map<String, EventDAO> mKeyDaoMap;
+    private Map<String, Marker> mKeyMarkerVisible;
     private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
+    private LatLng scaleTo;
 
-    @BindView(R.id.spinner)
+    @BindView(R.id.category_spinner)
     Spinner spinner;
 
     @BindView(R.id.map_cardview)
@@ -121,11 +130,13 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mKeyMarkerMap = new HashMap<>();
+        mKeyMarkerVisible = new HashMap<>();
+        mKeyDaoMap = new HashMap<>();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-         inflater.inflate(R.menu.map_menu, menu);
+        inflater.inflate(R.menu.map_menu, menu);
     }
 
     @Override
@@ -157,29 +168,17 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         });
         mFloatButton.setTag(ADD_EVENT);
 
-        mapBurger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity)Objects.requireNonNull(getActivity())).getDrawerLayout().openDrawer(GravityCompat.START);
-            }
-        });
+        mapBurger.setOnClickListener(v1 -> ((MainActivity) Objects.requireNonNull(getActivity())).getDrawerLayout().openDrawer(GravityCompat.START));
 
-        search.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onClick(View v) {
-                mMap.setMyLocationEnabled(true);
-                FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
-                client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()) {
-                            LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
-                        }
-                    }
-                });
-            }
+        search.setOnClickListener(v12 -> {
+            mMap.setMyLocationEnabled(true);
+            FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
+            client.getLastLocation().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+                }
+            });
         });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -223,6 +222,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
         enableLocation();
         setupEventsDB();
+
+        if (scaleTo != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(scaleTo, 15));
+            scaleTo = null;
+        }
     }
 
     @Override
@@ -258,7 +262,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             mMap.setMyLocationEnabled(true);
             FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
             client.getLastLocation().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
+                if (task.isSuccessful() && scaleTo == null) {
                     LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
                 }
@@ -278,7 +282,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         }
     }
 
-    public void createSpinner(){
+    public void createSpinner() {
 
         ArrayAdapter<?> adapter =
                 ArrayAdapter.createFromResource(getContext(), R.array.category, android.R.layout.simple_spinner_item);
@@ -290,7 +294,19 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int selectedCategory = spinner.getSelectedItemPosition();
+                List<String> categories = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.category)));
+                for (Marker m : mKeyMarkerMap.values()) {
+                    m.setVisible(false);
+                }
+                mKeyMarkerVisible = new HashMap<>();
+
+                for (Map.Entry<String, EventDAO> entry : mKeyDaoMap.entrySet()) {
+                    if (position == 0 || entry.getValue().getCategory() == position) {
+                        Marker marker = mKeyMarkerMap.get(entry.getKey());
+                        marker.setVisible(true);
+                        mKeyMarkerVisible.put(entry.getKey(), marker);
+                    }
+                }
             }
 
             @Override
@@ -318,7 +334,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         ArrayList<String> attendingUsers = (ArrayList<String>) dataSnapshot.getValue();
-                        if(attendingUsers == null){
+                        if (attendingUsers == null) {
                             attendingUsers = new ArrayList<>();
                         }
                         attendingUsers.add(userKey);
@@ -338,7 +354,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         ArrayList<String> eventsAttended = (ArrayList<String>) dataSnapshot.getValue();
-                        if(eventsAttended == null){
+                        if (eventsAttended == null) {
                             eventsAttended = new ArrayList<>();
                         }
                         eventsAttended.add(m.getKey());
@@ -365,26 +381,34 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                EventDAO event = dataSnapshot.getValue(EventDAO.class);
-                MarkerOptions options = new MarkerOptions().title(event.getName())
-                        .position(event.getLatLng());
-                Marker marker = mMap.addMarker(options);
-                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+                if (!dataSnapshot.getKey().equals("test")) {
+                    EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                    MarkerOptions options = new MarkerOptions().title(event.getName())
+                            .position(event.getLatLng());
+                    Marker marker = mMap.addMarker(options);
+                    mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+                    mKeyDaoMap.put(dataSnapshot.getKey(), event);
+                }
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
+                mKeyDaoMap.remove(dataSnapshot.getKey());
+
                 EventDAO event = dataSnapshot.getValue(EventDAO.class);
                 MarkerOptions options = new MarkerOptions().title(event.getName())
                         .position(event.getLatLng());
                 Marker marker = mMap.addMarker(options);
                 mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
+                mKeyDaoMap.put(dataSnapshot.getKey(), event);
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 mKeyMarkerMap.get(dataSnapshot.getKey()).remove();
+                mKeyMarkerMap.remove(dataSnapshot.getKey());
+                mKeyDaoMap.remove(dataSnapshot.getKey());
             }
 
             @Override
@@ -397,5 +421,9 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                 Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void goToEvent(LatLng position) {
+        scaleTo = position;
     }
 }
