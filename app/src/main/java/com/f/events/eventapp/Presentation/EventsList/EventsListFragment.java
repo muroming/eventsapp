@@ -1,4 +1,4 @@
-package com.f.events.eventapp.Presentation.MapFragment;
+package com.f.events.eventapp.Presentation.EventsList;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,8 +24,7 @@ public class EventsListFragment extends Fragment {
     private static View view;
     private static List<EventDAO> events;
 
-    public static EventsListFragment newInstance(List<EventDAO> newEvents){
-        events = newEvents;
+    public static EventsListFragment newInstance(){
         return new EventsListFragment();
     }
 
@@ -43,6 +42,7 @@ public class EventsListFragment extends Fragment {
     }
 
     public void setEvents(){
+        events = new ArrayList<>();
         events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));
         events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(),new ArrayList<>()));
         events.add(new EventDAO(new LatLng(30, 40), "Test event", "Test description", new Date(), new ArrayList<>()));

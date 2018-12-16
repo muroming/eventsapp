@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragment;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
-import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
+import com.f.events.eventapp.Presentation.EventsList.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
 import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;

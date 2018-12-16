@@ -1,4 +1,4 @@
-package com.f.events.eventapp.Presentation.MapFragment;
+package com.f.events.eventapp.Presentation.EventsList;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

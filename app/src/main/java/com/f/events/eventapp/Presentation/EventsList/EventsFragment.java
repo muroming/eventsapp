@@ -1,4 +1,4 @@
-package com.f.events.eventapp.Presentation.MapFragment;
+package com.f.events.eventapp.Presentation.EventsList;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.FragmentInteractions;
+import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
+import com.google.firebase.auth.internal.FederatedSignInActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class EventsFragment extends Fragment {
+public class EventsFragment extends Fragment implements FragmentInteractions.OnBackPressListener {
 
     @BindView(R.id.vp_switch_events)
     ViewPager viewPager;
@@ -42,15 +45,20 @@ public class EventsFragment extends Fragment {
 
     public class EventsPagerAdapter extends FragmentPagerAdapter{
 
-        public EventsPagerAdapter(FragmentManager fragmentManager){ super(fragmentManager); }
+        EventsPagerAdapter(FragmentManager fragmentManager){ super(fragmentManager); }
         @Override
         public Fragment getItem(int i) {
-            return EventsListFragment.newInstance(events);
+            return EventsListFragment.newInstance();
         }
 
         @Override
         public int getCount() {
             return 2;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        ((MainActivity) getActivity()).backToMap();
     }
 }
