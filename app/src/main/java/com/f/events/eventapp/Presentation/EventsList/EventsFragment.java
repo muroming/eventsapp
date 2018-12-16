@@ -61,12 +61,7 @@ public class EventsFragment extends Fragment implements FragmentInteractions.OnB
         events = new ArrayList<>();
         pagerTab.setTabIndicatorColor(getResources().getColor(R.color.white));
 
-        burger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).getDrawerLayout().openDrawer(GravityCompat.START);
-            }
-        });
+        burger.setOnClickListener(view1 -> ((MainActivity) Objects.requireNonNull(getActivity())).getDrawerLayout().openDrawer(GravityCompat.START));
 
         createSpinner();
 

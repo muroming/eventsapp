@@ -4,12 +4,16 @@ package com.f.events.eventapp.Presentation.MainActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.Data.UserDAO;
 import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragment;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.EventsList.EventsFragment;
@@ -23,10 +27,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import com.f.events.eventapp.FragmentInteractions.*;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private FirebaseDatabase mDatabase;
     private OnBackPressListener mOnBackListener;
 
     @BindView(R.id.nv_drawer)
@@ -34,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+
+    ImageView mProfileIconNav;
+
+    TextView mProfileNameNav;
 
     public static void start(Context context) {
         Intent starter = new Intent(context, MainActivity.class);
@@ -50,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
 
         if (mAuth.getCurrentUser() == null) {
             LoginActivity.start(this);
@@ -105,6 +120,28 @@ public class MainActivity extends AppCompatActivity {
             }
 
             return true;
+        });
+        mProfileIconNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_icon);
+        mProfileNameNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_name);
+        loadDrawer();
+    }
+
+    private void loadDrawer() {
+        String key = mAuth.getCurrentUser().getUid();
+        mDatabase.getReference("users").child(key).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserDAO user = dataSnapshot.getValue(UserDAO.class);
+                Picasso.get().load(user.getImageUri())
+                        .placeholder(R.drawable.ic_profile)
+                        .into(mProfileIconNav);
+                mProfileNameNav.setText(user.getName());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
         });
     }
 
