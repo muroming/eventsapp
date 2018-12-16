@@ -1,6 +1,13 @@
 package com.f.events.eventapp.Presentation.ProfileFragment;
 
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -13,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.Data.UserDAO;
@@ -22,18 +28,17 @@ import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.internal.FederatedSignInActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -106,6 +111,7 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserDAO user = dataSnapshot.getValue(UserDAO.class);
                 Picasso.get().load(user.getImageUri())
+                        .transform(new CircularTransformation(420))
                         .placeholder(R.drawable.ic_profile)
                         .into(mPictureProfile);
                 mNameTextView.setText(user.getName());
@@ -116,6 +122,55 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
 
             }
         });
+    }
+
+    public class CircularTransformation implements Transformation {
+
+        private int mRadius = 10;
+
+        public CircularTransformation(final int radius) {
+            this.mRadius = radius;
+        }
+
+        @Override
+        public Bitmap transform(Bitmap source) {
+            Bitmap output = Bitmap.createBitmap(source.getWidth(), source.getHeight(),
+                    Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, source.getWidth(), source.getHeight());
+
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+            paint.setDither(true);
+
+            canvas.drawARGB(0, 0, 0, 0);
+
+            paint.setColor(Color.parseColor("#BAB399"));
+
+            if (mRadius == 0) {
+                canvas.drawCircle(source.getWidth() / 2 + 0.7f, source.getHeight() / 2 + 0.7f,
+                        source.getWidth() / 2 - 1.1f, paint);
+            } else {
+                canvas.drawCircle(source.getWidth() / 2 + 0.7f, source.getHeight() / 2 + 0.7f,
+                        mRadius, paint);
+            }
+
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+            canvas.drawBitmap(source, rect, rect, paint);
+
+            if (source != output) {
+                source.recycle();
+            }
+            return output;
+        }
+
+        @Override
+        public String key() {
+            return "circular" + String.valueOf(mRadius);
+        }
     }
 
     private void saveName(String name) {
