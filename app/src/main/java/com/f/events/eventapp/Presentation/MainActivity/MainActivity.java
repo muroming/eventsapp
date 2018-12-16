@@ -10,22 +10,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragment;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
-import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
+import com.f.events.eventapp.Presentation.EventsList.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
 import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import com.f.events.eventapp.FragmentInteractions.*;
 
 public class MainActivity extends AppCompatActivity {
-
-    public interface OnBackPressListener {
-        void onBackPressed();
-    }
 
     private FirebaseAuth mAuth;
     private OnBackPressListener mOnBackListener;
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fl_fragment_container, MapFragment.newInstance())
                 .commit();
-
         mNavigationDrawer.getMenu().getItem(0)
                 .setChecked(true);
 
@@ -132,5 +130,11 @@ public class MainActivity extends AppCompatActivity {
 //  todo      getSupportFragmentManager()
 //                .beginTransaction()
 //                .replace(R.id.fl_fragment_container)
+    }
+
+    public void showCreateEventFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_fragment_container, CreateEventFragment.newInstance())
+                .commit();
     }
 }

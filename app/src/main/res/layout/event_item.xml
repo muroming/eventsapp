@@ -3,27 +3,41 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_margin="@dimen/default_margin"
+    android:background="#34FFFFFF">
 
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="@dimen/default_text_size"
+        android:layout_margin="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/tv_about"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLength="60"/>
+        android:maxLines="3"
+        android:textColor="@color/white"
+        android:textSize="@dimen/default_text_size"
+        android:layout_margin="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/tv_position"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="@dimen/default_text_size"
+        android:layout_margin="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/tv_date"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="@dimen/default_text_size"
+        android:layout_margin="@dimen/default_margin"/>
 
 </LinearLayout>

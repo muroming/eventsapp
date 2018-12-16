@@ -3,6 +3,7 @@ package com.f.events.eventapp.Presentation.MapFragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,14 +25,20 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +46,10 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class MapFragment extends Fragment implements MainActivity.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapFragment extends Fragment implements FragmentInteractions.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -69,7 +78,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     @BindView(R.id.tv_event_sheet_place)
     TextView mEventSheetPlace;
 
-    @BindView(R.id.fab_map_floating_button)
+    @BindView(R.id.btn_add_event)
     FloatingActionButton mFloatButton;
 
     @BindView(R.id.map_burger)
@@ -139,6 +148,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
+        ButterKnife.bind(this, v);
 
         mapFragment.getMapAsync(this);
         createSpinner();
@@ -173,6 +183,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
 
             googleMap.addMarker(m);
         }
+
         enableLocation();
     }
 
@@ -202,7 +213,18 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
             }
         } else {
             mMap.setMyLocationEnabled(true);
+            FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
+            client.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if (task.isSuccessful()) {
+                        LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+                    }
+                }
+            });
         }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -237,5 +259,10 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
             }
 
         });
+    }
+
+    @OnClick(R.id.btn_add_event)
+    public void actionBarSetOnClickListener() {
+        ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
     }
 }

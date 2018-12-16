@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.model.LatLng;
@@ -26,7 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ProfileFragment extends Fragment implements MainActivity.OnBackPressListener, ProfileEventsAdapter.OnItemClicked {
+public class ProfileFragment extends Fragment implements FragmentInteractions.OnBackPressListener, ProfileEventsAdapter.OnItemClicked {
 
     @BindView(R.id.rv_profile_events)
     RecyclerView mRecyclerEvents;
