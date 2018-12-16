@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
         ButterKnife.bind(this);
     }
 
@@ -63,11 +64,9 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         String key = task.getResult().getUser().getUid();
-                        Map<String, Object> upd = new HashMap<>();
                         UserDAO user = new UserDAO(null, mLogin.getText().toString());
-                        upd.put(key, user);
 
-                        mDatabase.getReference("users").updateChildren(upd);
+                        mDatabase.getReference("users").child(key).setValue(user);
                         MainActivity.start(this);
                     } else {
                         Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();

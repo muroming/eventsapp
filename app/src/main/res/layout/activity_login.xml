@@ -12,75 +12,79 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100dp"
-        android:src="@drawable/logo_new"/>
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="100dp"
+            android:src="@drawable/logo_new" />
 
-    <android.support.v7.widget.CardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/default_margin"
-        android:background="#34FFFFFF"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp">
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:background="#34FFFFFF"
+            app:cardCornerRadius="@dimen/default_margin">
 
-        <EditText
-            android:id="@+id/tv_login"
+            <EditText
+                android:id="@+id/tv_login"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:hint="Email"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/menu"
+                android:textColorLink="@color/white"
+                android:textSize="20sp"
+                android:theme="?attr/editTextStyle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="32dp"
+            android:background="#34FFFFFF"
+            app:cardCornerRadius="@dimen/default_margin">
+
+            <EditText
+                android:id="@+id/tv_password"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:hint="Password"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/menu"
+                android:textColorLink="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_login" />
+
+        </android.support.v7.widget.CardView>
+
+        <ImageView
+            android:id="@+id/btn_login"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:hint="Email"
-            android:textColor="@color/menu"
-            android:textColorLink="@color/white"
-            android:textSize="20sp"
-            android:theme="?attr/editTextStyle"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/login"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tv_password" />
 
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/default_margin"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
-        android:background="#34FFFFFF">
-
-    <EditText
-        android:id="@+id/tv_password"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:textColorLink="@color/white"
-        android:layout_margin="8dp"
-        android:hint="Password"
-        android:textColor="@color/menu"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_login" />
-
-    </android.support.v7.widget.CardView>
-
-    <ImageView
-        android:id="@+id/btn_login"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/login"
-        android:layout_gravity="center_horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_password" />
-
-    <ImageView
-        android:id="@+id/btn_create"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/register"
-        android:layout_gravity="center_horizontal"
-        app:layout_constraintStart_toEndOf="@id/btn_login"
-        app:layout_constraintTop_toBottomOf="@id/tv_password" />
+        <ImageView
+            android:id="@+id/btn_create"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/register"
+            app:layout_constraintStart_toEndOf="@id/btn_login"
+            app:layout_constraintTop_toBottomOf="@id/tv_password" />
     </LinearLayout>
 
 </ScrollView>
