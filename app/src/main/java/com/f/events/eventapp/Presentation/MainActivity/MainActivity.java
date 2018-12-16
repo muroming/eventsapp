@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 
 import com.f.events.eventapp.Data.EventDAO;
+import com.f.events.eventapp.Presentation.CreateEventFragment.CreateEventFragment;
 import com.f.events.eventapp.Presentation.LoginActivity.LoginActivity;
 import com.f.events.eventapp.Presentation.MapFragment.EventsFragment;
 import com.f.events.eventapp.Presentation.MapFragment.MapFragment;
@@ -17,15 +18,12 @@ import com.f.events.eventapp.Presentation.ProfileFragment.ProfileFragment;
 import com.f.events.eventapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+import com.f.events.eventapp.FragmentInteractions.*;
 
-    public interface OnBackPressListener {
-        void onBackPressed();
-    }
+public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private OnBackPressListener mOnBackListener;
@@ -127,5 +125,11 @@ public class MainActivity extends AppCompatActivity {
 //  todo      getSupportFragmentManager()
 //                .beginTransaction()
 //                .replace(R.id.fl_fragment_container)
+    }
+
+    public void showCreateEventFragment(){
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_fragment_container, CreateEventFragment.newInstance())
+                .commit();
     }
 }

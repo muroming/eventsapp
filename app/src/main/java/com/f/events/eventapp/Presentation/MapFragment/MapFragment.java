@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,11 +30,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class MapFragment extends Fragment implements MainActivity.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapFragment extends Fragment implements FragmentInteractions.OnBackPressListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -62,7 +66,6 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
     public MapFragment() {
         // Required empty public constructor
     }
-
     public static MapFragment newInstance() {
         return new MapFragment();
     }
@@ -106,6 +109,7 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
+        ButterKnife.bind(this, v);
 
         mapFragment.getMapAsync(this);
 
@@ -182,5 +186,10 @@ public class MapFragment extends Fragment implements MainActivity.OnBackPressLis
                 mMap.setMyLocationEnabled(true);
             }
         }
+    }
+
+    @OnClick(R.id.btn_add_event)
+    public void actionBarSetOnClickListener(){
+        ((MainActivity) Objects.requireNonNull(getActivity())).showCreateEventFragment();
     }
 }
