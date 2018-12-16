@@ -185,7 +185,10 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     @Override
     public void onBackPressed() {
-        ((MainActivity) getActivity()).backToMap();
+        try {
+            ((MainActivity) getActivity()).backToMap();
+        } catch (NullPointerException e) {
+        }
     }
 }
 

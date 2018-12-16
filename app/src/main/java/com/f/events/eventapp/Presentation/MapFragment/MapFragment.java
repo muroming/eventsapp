@@ -79,6 +79,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     private Map<String, EventDAO> mKeyDaoMap;
     private Map<String, Marker> mKeyMarkerVisible;
     private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
+    private LatLng scaleTo;
 
     @BindView(R.id.category_spinner)
     Spinner spinner;
@@ -208,6 +209,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
 
         enableLocation();
         setupEventsDB();
+
+        if (scaleTo != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(scaleTo, 15));
+            scaleTo = null;
+        }
     }
 
     @Override
@@ -243,7 +249,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             mMap.setMyLocationEnabled(true);
             FusedLocationProviderClient client = new FusedLocationProviderClient(getContext());
             client.getLastLocation().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
+                if (task.isSuccessful() && scaleTo == null) {
                     LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
                 }
@@ -400,5 +406,9 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
                 Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void goToEvent(LatLng position) {
+        scaleTo = position;
     }
 }
