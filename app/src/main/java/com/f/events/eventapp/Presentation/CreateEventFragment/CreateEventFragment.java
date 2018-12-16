@@ -1,23 +1,21 @@
 package com.f.events.eventapp.Presentation.CreateEventFragment;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.Placeholder;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.f.events.eventapp.Data.EventDAO;
 import com.f.events.eventapp.FragmentInteractions;
 import com.f.events.eventapp.Presentation.MainActivity.MainActivity;
 import com.f.events.eventapp.R;
@@ -25,9 +23,19 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.firebase.auth.internal.FederatedSignInActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -62,11 +70,13 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     Calendar dateAndTime = Calendar.getInstance();
 
-    private Place place;
+    private Place mPlace;
+    private FirebaseDatabase mDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = FirebaseDatabase.getInstance();
     }
 
     @Nullable
@@ -146,17 +156,31 @@ public class CreateEventFragment extends Fragment implements FragmentInteraction
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == PLACE_PICKER_REQUEST){
+        if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
-                place = PlacePicker.getPlace(getContext(), data);
-                mPlaceSelection.setText(Objects.requireNonNull(place.getAddress()).toString());
+                mPlace = PlacePicker.getPlace(getContext(), data);
+                mPlaceSelection.setText(Objects.requireNonNull(mPlace.getAddress()).toString());
             }
         }
     }
 
     @OnClick(R.id.btn_create_event)
-    public void createEvent(){ //todo add saving
-
+    public void createEvent() {
+        Map<String, Object> res = new HashMap<>();
+        List<Double> coords = new ArrayList<>();
+        coords.add(mPlace.getLatLng().latitude);
+        coords.add(mPlace.getLatLng().longitude); //todo add category
+        EventDAO event = new EventDAO(coords, etMeetingName.getText().toString(), etMeetingDescription.getText().toString(),
+                dateAndTime.getTime(), 0, Collections.emptyList(), mPlace.getAddress().toString());
+        String key = mDatabase.getReference("events").push().getKey();
+        res.put(key, event);
+        mDatabase.getReference("events").updateChildren(res).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                onBackPressed();
+            } else {
+                Toast.makeText(getContext(), "Failed loading please try later", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

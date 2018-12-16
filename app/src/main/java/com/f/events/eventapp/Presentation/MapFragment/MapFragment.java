@@ -69,7 +69,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
     private BottomSheetBehavior mBottomSheet;
     private FirebaseDatabase mDatabase;
     private Map<String, Marker> mKeyMarkerMap;
-    private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm",Locale.getDefault());
+    private SimpleDateFormat mFormat = new SimpleDateFormat("EEE, d MMM HH:mm", Locale.getDefault());
 
     @BindView(R.id.ll_event_bottom_sheet)
     LinearLayout mEventBottomLayout;
@@ -244,13 +244,11 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (!dataSnapshot.getKey().equals("total")) {
-                    EventDAO event = dataSnapshot.getValue(EventDAO.class);
-                    MarkerOptions options = new MarkerOptions().title(event.getName())
-                            .position(event.getLatLng());
-                    Marker marker = mMap.addMarker(options);
-                    mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
-                }
+                EventDAO event = dataSnapshot.getValue(EventDAO.class);
+                MarkerOptions options = new MarkerOptions().title(event.getName())
+                        .position(event.getLatLng());
+                Marker marker = mMap.addMarker(options);
+                mKeyMarkerMap.put(dataSnapshot.getKey(), marker);
             }
 
             @Override
