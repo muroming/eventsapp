@@ -60,10 +60,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-<<<<<<<HEAD
-        =======
 import java.util.function.BiConsumer;
->>>>>>>6b82cf547b0fddde41e0b5f3276c8b40da5c83f4
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
