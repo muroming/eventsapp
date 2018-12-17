@@ -2,6 +2,7 @@ package com.f.events.eventapp.Presentation.LoginActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
+    private SharedPreferences preferences;
 
     @BindView(R.id.tv_login)
     TextView mLogin;
@@ -41,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        preferences = getSharedPreferences("PREFS", MODE_PRIVATE);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
         ButterKnife.bind(this);
@@ -51,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(mLogin.getText().toString(), mPassword.getText().toString())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        preferences.edit().putBoolean("log", true).apply();
                         MainActivity.start(this);
                     } else {
                         Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();

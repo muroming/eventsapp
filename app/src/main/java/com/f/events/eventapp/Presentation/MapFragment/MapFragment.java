@@ -57,7 +57,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import java.util.function.BiConsumer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -170,7 +169,7 @@ public class MapFragment extends Fragment implements FragmentInteractions.OnBack
             client.getLastLocation().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     LatLng pos = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
                 }
             });
         });

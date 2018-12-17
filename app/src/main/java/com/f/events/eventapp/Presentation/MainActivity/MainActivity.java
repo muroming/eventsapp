@@ -3,6 +3,7 @@ package com.f.events.eventapp.Presentation.MainActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -34,13 +35,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.util.Map;
-
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
     private OnBackPressListener mOnBackListener;
+    private SharedPreferences preferences;
 
     @BindView(R.id.nv_drawer)
     NavigationView mNavigationDrawer;
@@ -66,67 +66,73 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
-        if (mAuth.getCurrentUser() == null) {
+        preferences = getSharedPreferences("PREFS", MODE_PRIVATE);
+
+        if (!preferences.getBoolean("log", false)) {
             LoginActivity.start(this);
+            finish();
+        } else {
+
+            setContentView(R.layout.activity_main);
+            ButterKnife.bind(this);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fl_fragment_container, MapFragment.newInstance())
+                    .commit();
+            mNavigationDrawer.getMenu().getItem(0)
+                    .setChecked(true);
+
+
+            mNavigationDrawer.setNavigationItemSelectedListener(menuItem -> {
+
+                switch (menuItem.getItemId()) {
+                    case R.id.nav_logout: {
+                        mAuth.signOut();
+                        preferences.edit().putBoolean("log", false).apply();
+                        LoginActivity.start(this);
+                        finish();
+                        break;
+                    }
+                    case R.id.nav_profile: {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        setTitle("Профиль");
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fl_fragment_container, ProfileFragment.newInstance())
+                                .commit();
+                        break;
+                    }
+                    case R.id.nav_my_events: {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fl_fragment_container, EventsFragment.newInstance())
+                                .commit();
+                        break;
+                    }
+                    case R.id.nav_map: {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fl_fragment_container, MapFragment.newInstance())
+                                .commit();
+                        break;
+                    }
+                }
+
+                return true;
+            });
+            mProfileIconNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_icon);
+            mProfileNameNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_name);
+            loadDrawer();
         }
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fl_fragment_container, MapFragment.newInstance())
-                .commit();
-        mNavigationDrawer.getMenu().getItem(0)
-                .setChecked(true);
-
-
-        mNavigationDrawer.setNavigationItemSelectedListener(menuItem -> {
-
-            switch (menuItem.getItemId()) {
-                case R.id.nav_logout: {
-                    mAuth.signOut();
-                    LoginActivity.start(this);
-                    finish();
-                    break;
-                }
-                case R.id.nav_profile: {
-                    menuItem.setChecked(true);
-                    mDrawerLayout.closeDrawers();
-                    setTitle("Профиль");
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fl_fragment_container, ProfileFragment.newInstance())
-                            .commit();
-                    break;
-                }
-                case R.id.nav_my_events: {
-                    menuItem.setChecked(true);
-                    mDrawerLayout.closeDrawers();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fl_fragment_container, EventsFragment.newInstance())
-                            .commit();
-                    break;
-                }
-                case R.id.nav_map: {
-                    menuItem.setChecked(true);
-                    mDrawerLayout.closeDrawers();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fl_fragment_container, MapFragment.newInstance())
-                            .commit();
-                    break;
-                }
-            }
-
-            return true;
-        });
-        mProfileIconNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_icon);
-        mProfileNameNav = mNavigationDrawer.getHeaderView(0).findViewById(R.id.nav_profile_name);
-        loadDrawer();
     }
 
     private void loadDrawer() {

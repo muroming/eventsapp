@@ -61,6 +61,7 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
     private ProfileEventsAdapter adapter;
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+    private Map<String, EventDAO> map;
 
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
@@ -84,6 +85,7 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
         adapter = new ProfileEventsAdapter(getContext());
         adapter.setListener(this);
         mDatabase = FirebaseDatabase.getInstance();
+        map = new HashMap<>();
 
         mRecyclerEvents.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerEvents.setAdapter(adapter);
@@ -115,6 +117,7 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
                         .placeholder(R.drawable.ic_profile)
                         .into(mPictureProfile);
                 mNameTextView.setText(user.getName());
+                mNameEditText.setText(user.getName());
             }
 
             @Override
@@ -193,7 +196,9 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
                     mDatabase.getReference("events").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            adapter.addItem(dataSnapshot.getValue(EventDAO.class));
+                            EventDAO e = dataSnapshot.getValue(EventDAO.class);
+                            map.put(key, e);
+                            adapter.addItem(e);
                         }
 
                         @Override
@@ -233,6 +238,10 @@ public class ProfileFragment extends Fragment implements FragmentInteractions.On
 
     @Override
     public void onClick(EventDAO event) {
-        ((MainActivity) getActivity()).goToEvent(event);
+        for (Map.Entry<String, EventDAO> e : map.entrySet()) {
+            if (e.getValue().equals(event)) {
+                ((MainActivity) getActivity()).showParticipants(e.getKey());
+            }
+        }
     }
 }
